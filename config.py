@@ -16,10 +16,12 @@ from multiprocessing import get_context
 import os
 from dataset_util import *
 from torch.utils.data.distributed import DistributedSampler
+from tools.image_dataset import ImageDataset
+from torchvision import transforms
 
 data_paths = {
     'ffhqlmdb256':
-    os.path.expanduser('datasets/ffhq256.lmdb'),
+    ['/mnt/fast/nobackup/scratch4weeks/tb0035/projects/mia/datasets/ffhq256_lmdb2', '/mnt/fast/nobackup/scratch4weeks/tb0035/projects/mia/datasets/ffhq256_lmdb2/train.csv'],
     # used for training a classifier
     'celeba':
     os.path.expanduser('datasets/celeba'),
@@ -283,9 +285,17 @@ class TrainConfig(BaseConfig):
 
     def make_dataset(self, path=None, **kwargs):
         if self.data_name == 'ffhqlmdb256':
-            return FFHQlmdb(path=path or self.data_path,
-                            image_size=self.img_size,
-                            **kwargs)
+            tform = transforms.Compose([
+                transforms.Resize((self.img_size, self.img_size)),
+                transforms.RandomHorizontalFlip(),
+                transforms.ToTensor(),
+                transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+                ])
+            return ImageDataset(self.data_path[0], self.data_path[1], transform=tform)
+            # return FFHQlmdb(path=path or self.data_path,
+            #                 image_size=self.img_size,
+            #                 **kwargs)
+        
         elif self.data_name == 'horse256':
             return Horse_lmdb(path=path or self.data_path,
                               image_size=self.img_size,

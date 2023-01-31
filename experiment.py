@@ -876,6 +876,7 @@ def is_time(num_samples, every, step_size):
 
 def train(conf: TrainConfig, gpus, nodes=1, mode: str = 'train'):
     print('conf:', conf.name)
+    print(conf)
     # assert not (conf.fp16 and conf.grad_clip > 0
     #             ), 'pytorch lightning has bug with amp + gradient clipping'
     model = LitModel(conf)
@@ -918,6 +919,10 @@ def train(conf: TrainConfig, gpus, nodes=1, mode: str = 'train'):
     trainer = pl.Trainer(
         max_steps=conf.total_samples // conf.batch_size_effective,
         resume_from_checkpoint=resume,
+        # accelerator='cuda',
+        # devices=len(gpus),
+        # num_nodes=nodes,
+        # strategy='ddp',
         gpus=gpus,
         num_nodes=nodes,
         accelerator=accelerator,

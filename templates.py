@@ -199,6 +199,55 @@ def ffhq128_autoenc_130M():
     conf.name = 'ffhq128_autoenc_130M'
     return conf
 
+def ffhq128_test(args):
+    conf = ffhq128_autoenc_base()
+    conf.data_name = 'ffhqlmdb256'
+    conf.scale_up_gpus(1)
+    conf.img_size = 128
+    conf.net_ch = 128
+    # final resolution = 8x8
+    conf.net_ch_mult = (1, 1, 2, 3, 4)
+    # final resolution = 4x4
+    conf.net_enc_channel_mult = (1, 1, 2, 3, 4, 4)
+
+    # adjust this to suit your GPU/debug purpose
+    conf.batch_size = 16
+    conf.batch_size_eval = 16
+    conf.sample_size=8
+    conf.eval_every_samples = 500_000
+
+    conf.total_samples = 130_000_000
+    conf.eval_ema_every_samples = 1_000_000
+    
+    conf.name = args.name  # 'ffhq128_test'
+    conf.work_cache_dir = args.output  # '/mnt/fast/nobackup/scratch4weeks/tb0035/projects/diffsteg/diffae/test'
+    conf.base_dir = conf.work_cache_dir
+    conf.data_cache_dir = conf.work_cache_dir
+    return conf
+
+
+def ffhq256_test(args):
+    conf = ffhq128_autoenc_base()
+    conf.img_size = 256
+    conf.net_ch = 128
+    conf.net_ch_mult = (1, 1, 2, 2, 4, 4)
+    conf.net_enc_channel_mult = (1, 1, 2, 2, 4, 4, 4)
+
+    # adjust to your GPU
+    conf.eval_every_samples = 100_000  # 10_000_000
+    conf.eval_ema_every_samples = 500_000  # 10_000_000
+    conf.total_samples = 200_000_000
+    conf.batch_size = args.batch_size
+    conf.batch_size_eval = conf.batch_size
+    conf.sample_size=8
+
+    conf.name = args.name  # 'ae256'
+    conf.work_cache_dir = args.output  # '/mnt/fast/nobackup/scratch4weeks/tb0035/projects/diffsteg/diffae/test256'
+    conf.base_dir = conf.work_cache_dir
+    conf.data_cache_dir = conf.work_cache_dir
+
+    conf.make_model_conf()
+    return conf
 
 def horse128_ddpm():
     conf = ffhq128_ddpm()
